@@ -11,7 +11,9 @@ import UploadMusic from './UploadMusic';
 
 const Sidebar = () => {
   const location = useLocation();
-  const { playlists, createPlaylist } = useMusicContext();
+  const navigate = useNavigate();
+  const { playlists, createPlaylist, fetchMusics } = useMusicContext();
+  const { user, logout } = useAuth();
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [newPlaylistDesc, setNewPlaylistDesc] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -25,6 +27,15 @@ const Sidebar = () => {
       setNewPlaylistDesc('');
       setIsDialogOpen(false);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const handleUploadComplete = () => {
+    fetchMusics();
   };
 
   return (

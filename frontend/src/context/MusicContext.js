@@ -118,49 +118,71 @@ export const MusicProvider = ({ children }) => {
     setCurrentTime(time);
   };
 
-  const toggleFavorite = (musicId) => {
-    setUser(prev => {
-      const isFavorited = prev.favoriteIds.includes(musicId);
-      return {
-        ...prev,
-        favoriteIds: isFavorited
-          ? prev.favoriteIds.filter(id => id !== musicId)
-          : [...prev.favoriteIds, musicId]
-      };
-    });
+  const toggleFavorite = async (musicId) => {
+    try {
+      await axios.post(`${API}/favorite/${musicId}`, {}, {
+        headers: getAuthHeader()
+      });
+      // Refresh user data would happen via AuthContext
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
   };
 
-  const createPlaylist = (name, description) => {
-    const newPlaylist = {
-      id: `p${Date.now()}`,
-      name,
-      description,
-      coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop',
-      musicIds: [],
-      userId: user.id
-    };
-    setPlaylists(prev => [...prev, newPlaylist]);
-    return newPlaylist;
+  const createPlaylist = async (name, description) => {
+    try {
+      const response = await axios.post(`${API}/playlist`, {
+        name,
+        description
+      }, {
+        headers: getAuthHeader()
+      });
+      setPlaylists(prev => [...prev, response.data]);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create playlist:', error);
+      return null;
+    }
   };
 
-  const addToPlaylist = (playlistId, musicId) => {
-    setPlaylists(prev => prev.map(p => 
-      p.id === playlistId && !p.musicIds.includes(musicId)
-        ? { ...p, musicIds: [...p.musicIds, musicId] }
-        : p
-    ));
+  const addToPlaylist = async (playlistId, musicId) => {
+    try {
+      const response = await axios.post(
+        `${API}/playlist/${playlistId}/add`,
+        { musicId },
+        { headers: getAuthHeader() }
+      );
+      setPlaylists(prev => prev.map(p => 
+        p.id === playlistId ? response.data : p
+      ));
+    } catch (error) {
+      console.error('Failed to add to playlist:', error);
+    }
   };
 
-  const removeFromPlaylist = (playlistId, musicId) => {
-    setPlaylists(prev => prev.map(p => 
-      p.id === playlistId
-        ? { ...p, musicIds: p.musicIds.filter(id => id !== musicId) }
-        : p
-    ));
+  const removeFromPlaylist = async (playlistId, musicId) => {
+    try {
+      const response = await axios.delete(
+        `${API}/playlist/${playlistId}/remove/${musicId}`,
+        { headers: getAuthHeader() }
+      );
+      setPlaylists(prev => prev.map(p => 
+        p.id === playlistId ? response.data : p
+      ));
+    } catch (error) {
+      console.error('Failed to remove from playlist:', error);
+    }
   };
 
-  const deletePlaylist = (playlistId) => {
-    setPlaylists(prev => prev.filter(p => p.id !== playlistId));
+  const deletePlaylist = async (playlistId) => {
+    try {
+      await axios.delete(`${API}/playlist/${playlistId}`, {
+        headers: getAuthHeader()
+      });
+      setPlaylists(prev => prev.filter(p => p.id !== playlistId));
+    } catch (error) {
+      console.error('Failed to delete playlist:', error);
+    }
   };
 
   return (

@@ -205,7 +205,9 @@ export const MusicProvider = ({ children }) => {
       createPlaylist,
       addToPlaylist,
       removeFromPlaylist,
-      deletePlaylist
+      deletePlaylist,
+      fetchMusics,
+      fetchPlaylists
     }}>
       {children}
     </MusicContext.Provider>

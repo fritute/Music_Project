@@ -136,6 +136,25 @@ const Sidebar = () => {
           ))}
         </div>
       </nav>
+
+      {/* Bottom section with Upload and User */}
+      <div className="p-4 border-t border-gray-800 space-y-3">
+        <UploadMusic onUploadComplete={handleUploadComplete} />
+        
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center space-x-2 min-w-0">
+            <User className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <span className="text-gray-400 text-sm truncate">{user?.name}</span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+            title="Sair"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

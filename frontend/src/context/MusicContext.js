@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
-import { mockMusics, mockPlaylists, mockUser } from '../mock/mockData';
+import axios from 'axios';
+import { useAuth } from './AuthContext';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const MusicContext = createContext();
 

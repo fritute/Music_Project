@@ -16,15 +16,43 @@ export const useMusicContext = () => {
 };
 
 export const MusicProvider = ({ children }) => {
-  const [musics, setMusics] = useState(mockMusics);
-  const [playlists, setPlaylists] = useState(mockPlaylists);
-  const [user, setUser] = useState(mockUser);
+  const { user, getAuthHeader, isAuthenticated } = useAuth();
+  const [musics, setMusics] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
   const [currentMusic, setCurrentMusic] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const audioRef = useRef(new Audio());
+
+  // Fetch data on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchMusics();
+      fetchPlaylists();
+    }
+  }, [isAuthenticated]);
+
+  const fetchMusics = async () => {
+    try {
+      const response = await axios.get(`${API}/music`);
+      setMusics(response.data);
+    } catch (error) {
+      console.error('Failed to fetch musics:', error);
+    }
+  };
+
+  const fetchPlaylists = async () => {
+    try {
+      const response = await axios.get(`${API}/playlist`, {
+        headers: getAuthHeader()
+      });
+      setPlaylists(response.data);
+    } catch (error) {
+      console.error('Failed to fetch playlists:', error);
+    }
+  };
 
   useEffect(() => {
     const audio = audioRef.current;

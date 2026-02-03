@@ -1,11 +1,13 @@
 import React from 'react';
 import { Play, Heart, MoreVertical } from 'lucide-react';
 import { useMusicContext } from '../context/MusicContext';
+import { useAuth } from '../context/AuthContext';
 
 const MusicCard = ({ music }) => {
-  const { playMusic, currentMusic, isPlaying, user, toggleFavorite } = useMusicContext();
+  const { playMusic, currentMusic, toggleFavorite } = useMusicContext();
+  const { user } = useAuth();
   const isCurrentMusic = currentMusic?.id === music.id;
-  const isFavorite = user.favoriteIds.includes(music.id);
+  const isFavorite = user?.favoriteIds?.includes(music.id) || false;
 
   return (
     <div className="group relative bg-gray-900/40 rounded-lg p-4 hover:bg-gray-800/60 transition-all duration-300 cursor-pointer">

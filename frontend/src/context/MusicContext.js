@@ -81,7 +81,10 @@ export const MusicProvider = ({ children }) => {
       togglePlay();
     } else {
       setCurrentMusic(music);
-      audioRef.current.src = music.audioUrl;
+      const fullAudioUrl = music.audioUrl.startsWith('http') 
+        ? music.audioUrl 
+        : `${BACKEND_URL}${music.audioUrl}`;
+      audioRef.current.src = fullAudioUrl;
       audioRef.current.play();
       setIsPlaying(true);
     }

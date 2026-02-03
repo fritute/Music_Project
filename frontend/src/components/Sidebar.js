@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Library, PlusCircle, Heart, Music } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Search, Library, PlusCircle, Heart, Music, LogOut, User } from 'lucide-react';
 import { useMusicContext } from '../context/MusicContext';
+import { useAuth } from '../context/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+import UploadMusic from './UploadMusic';
 
 const Sidebar = () => {
   const location = useLocation();

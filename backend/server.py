@@ -17,6 +17,17 @@ db = client[os.environ['DB_NAME']]
 # Create the main app without a prefix
 app = FastAPI(title="MusicStream API", version="1.0.0")
 
+# Root route for main app
+@app.get("/")
+async def read_root():
+    return {
+        "message": "🎵 MusicStream API", 
+        "version": "1.0.0",
+        "status": "online",
+        "docs": "/docs",
+        "api": "/api"
+    }
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 

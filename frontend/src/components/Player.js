@@ -95,13 +95,15 @@ const Player = () => {
         {/* Progress Bar */}
         <div className="flex items-center space-x-2 w-full max-w-2xl">
           <span className="text-xs text-gray-400 w-10 text-right">
-            {formatTime(currentTime)}
+            {formatTime(displayTime)}
           </span>
           <Slider
-            value={[currentTime]}
+            value={[displayTime]}
             max={duration || 100}
             step={0.1}
-            onValueCommit={(value) => seekTo(value[0])}
+            onPointerDown={handleSeekStart}
+            onValueChange={handleSeekChange}
+            onValueCommit={handleSeekEnd}
             className="flex-1"
           />
           <span className="text-xs text-gray-400 w-10">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { useMusicContext } from '../context/MusicContext';
 import { Slider } from './ui/slider';
@@ -17,12 +17,30 @@ const Player = () => {
     setVolume
   } = useMusicContext();
 
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [seekValue, setSeekValue] = useState(0);
+
   const formatTime = (time) => {
     if (isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  const handleSeekStart = () => {
+    setIsSeeking(true);
+  };
+
+  const handleSeekChange = (value) => {
+    setSeekValue(value[0]);
+  };
+
+  const handleSeekEnd = (value) => {
+    seekTo(value[0]);
+    setIsSeeking(false);
+  };
+
+  const displayTime = isSeeking ? seekValue : currentTime;
 
   if (!currentMusic) {
     return (

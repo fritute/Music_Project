@@ -16,7 +16,9 @@ router = APIRouter(prefix="/music", tags=["music"])
 from server import db
 
 UPLOAD_DIR = Path("/app/backend/uploads/music")
+COVER_DIR = Path("/app/backend/uploads/covers")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+COVER_DIR.mkdir(parents=True, exist_ok=True)
 
 @router.post("/upload", response_model=MusicResponse, status_code=status.HTTP_201_CREATED)
 async def upload_music(
@@ -24,8 +26,8 @@ async def upload_music(
     artist: str = Form(...),
     genre: str = Form(...),
     duration: int = Form(...),
-    coverUrl: Optional[str] = Form(None),
     audio: UploadFile = File(...),
+    cover: Optional[UploadFile] = File(None),
     user_id: str = Depends(get_current_user_id)
 ):
     # Validate audio file
@@ -35,20 +37,44 @@ async def upload_music(
             detail="File must be an audio file"
         )
     
-    # Generate unique filename
+    # Generate unique filename for audio
     file_extension = os.path.splitext(audio.filename)[1]
     unique_filename = f"{ObjectId()}_{title.replace(' ', '_')}{file_extension}"
     file_path = UPLOAD_DIR / unique_filename
     
-    # Save file
+    # Save audio file
     try:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(audio.file, buffer)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save file: {str(e)}"
+            detail=f"Failed to save audio file: {str(e)}"
         )
+    
+    # Handle cover image upload
+    cover_url = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop"
+    if cover:
+        # Validate image file
+        if not cover.content_type or not cover.content_type.startswith('image/'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cover must be an image file"
+            )
+        
+        # Generate unique filename for cover
+        cover_extension = os.path.splitext(cover.filename)[1]
+        unique_cover_filename = f"{ObjectId()}_{title.replace(' ', '_')}{cover_extension}"
+        cover_path = COVER_DIR / unique_cover_filename
+        
+        # Save cover file
+        try:
+            with open(cover_path, "wb") as buffer:
+                shutil.copyfileobj(cover.file, buffer)
+            cover_url = f"/api/music/cover/{unique_cover_filename}"
+        except Exception as e:
+            # Don't fail upload if cover fails, just use default
+            print(f"Failed to save cover: {str(e)}")
     
     # Create music document
     music_dict = {
@@ -56,7 +82,7 @@ async def upload_music(
         "artist": artist,
         "genre": genre,
         "duration": duration,
-        "coverUrl": coverUrl or "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop",
+        "coverUrl": cover_url,
         "audioUrl": f"/api/music/stream/{unique_filename}",
         "uploadedBy": user_id,
         "createdAt": datetime.utcnow()
@@ -89,6 +115,24 @@ async def stream_music(filename: str):
     return FileResponse(
         path=file_path,
         media_type="audio/mpeg",
+        filename=filename
+    )
+
+@router.get("/cover/{filename}")
+async def get_cover(filename: str):
+    file_path = COVER_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Cover image not found"
+        )
+    
+    # Determine media type from file extension
+    media_type = mimetypes.guess_type(filename)[0] or "image/jpeg"
+    
+    return FileResponse(
+        path=file_path,
+        media_type=media_type,
         filename=filename
     )
 

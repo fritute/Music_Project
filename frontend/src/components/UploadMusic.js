@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, X, Music } from 'lucide-react';
+import { Upload, X, Music, Image } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
@@ -18,11 +18,12 @@ const UploadMusic = ({ onUploadComplete }) => {
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [genre, setGenre] = useState('');
-  const [coverUrl, setCoverUrl] = useState('');
   const [audioFile, setAudioFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(null);
   const [audioDuration, setAudioDuration] = useState(0);
 
-  const handleFileChange = (e) => {
+  const handleAudioChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('audio/')) {
@@ -42,6 +43,29 @@ const UploadMusic = ({ onUploadComplete }) => {
       audio.onloadedmetadata = () => {
         setAudioDuration(Math.floor(audio.duration));
       };
+    }
+  };
+
+  const handleCoverChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Erro",
+          description: "Por favor, selecione uma imagem",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setCoverFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -66,8 +90,9 @@ const UploadMusic = ({ onUploadComplete }) => {
       formData.append('artist', artist);
       formData.append('genre', genre);
       formData.append('duration', audioDuration);
-      if (coverUrl) {
-        formData.append('coverUrl', coverUrl);
+      
+      if (coverFile) {
+        formData.append('cover', coverFile);
       }
 
       const response = await axios.post(`${API}/music/upload`, formData, {
@@ -86,8 +111,9 @@ const UploadMusic = ({ onUploadComplete }) => {
       setTitle('');
       setArtist('');
       setGenre('');
-      setCoverUrl('');
       setAudioFile(null);
+      setCoverFile(null);
+      setCoverPreview(null);
       setAudioDuration(0);
       setIsOpen(false);
 

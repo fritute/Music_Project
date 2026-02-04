@@ -179,13 +179,39 @@ const UploadMusic = ({ onUploadComplete }) => {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-300 mb-2 block">URL da Capa (opcional)</label>
-            <Input
-              placeholder="https://exemplo.com/imagem.jpg"
-              value={coverUrl}
-              onChange={(e) => setCoverUrl(e.target.value)}
-              className="bg-gray-800 border-gray-700 text-white"
-            />
+            <label className="text-sm font-medium text-gray-300 mb-2 block">Capa da Música</label>
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCoverChange}
+                className="hidden"
+                id="cover-file"
+              />
+              <label
+                htmlFor="cover-file"
+                className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-purple-500 transition-colors duration-200 bg-gray-800/50"
+              >
+                {coverPreview ? (
+                  <div className="relative w-full h-full">
+                    <img
+                      src={coverPreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-lg">
+                      <p className="text-white text-sm">Clique para alterar</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Image className="w-12 h-12 text-gray-500 mx-auto mb-2" />
+                    <p className="text-gray-400">Clique para selecionar capa</p>
+                    <p className="text-gray-500 text-sm mt-1">JPG, PNG (opcional)</p>
+                  </div>
+                )}
+              </label>
+            </div>
           </div>
 
           <div>
@@ -194,7 +220,7 @@ const UploadMusic = ({ onUploadComplete }) => {
               <input
                 type="file"
                 accept="audio/*"
-                onChange={handleFileChange}
+                onChange={handleAudioChange}
                 required
                 className="hidden"
                 id="audio-file"

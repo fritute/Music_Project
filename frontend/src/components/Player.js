@@ -82,8 +82,8 @@ const Player = () => {
           <Slider
             value={[currentTime]}
             max={duration || 100}
-            step={1}
-            onValueChange={(value) => seekTo(value[0])}
+            step={0.1}
+            onValueCommit={(value) => seekTo(value[0])}
             className="flex-1"
           />
           <span className="text-xs text-gray-400 w-10">
